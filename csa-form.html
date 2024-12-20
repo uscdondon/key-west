@@ -3,46 +3,103 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CSA Form</title>
+    <title>FedEx Email Form</title>
     <style>
-        body { font-family: Arial, sans-serif; margin: 20px; }
-        form { max-width: 500px; margin: 0 auto; }
-        label { display: block; margin: 10px 0 5px; font-weight: bold; }
-        input, select { width: 100%; padding: 8px; margin-bottom: 10px; }
-        button { padding: 10px 15px; background-color: #007BFF; color: white; border: none; cursor: pointer; }
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            padding: 0;
+        }
+        form {
+            margin-bottom: 30px;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            max-width: 500px;
+            background-color: #f9f9f9;
+        }
+        label {
+            display: block;
+            margin-top: 10px;
+            font-weight: bold;
+        }
+        input, select {
+            width: 100%;
+            padding: 8px;
+            margin-top: 5px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-sizing: border-box;
+        }
+        button {
+            margin-top: 15px;
+            padding: 10px 15px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
     </style>
 </head>
 <body>
-    <h2>FedEx Email Form</h2>
     <form id="fedexForm">
-        <label for="route">Select Route:</label>
-        <select id="route" name="route">
-            <option value="Route 1">Route 1</option>
-            <option value="Route 2">Route 2</option>
-            <option value="Route 3">Route 3</option>
+        <h2>FedEx Email Form</h2>
+        <label for="type">Choose Reattempt or Retrieval:</label>
+        <select id="type" name="type" required>
+            <option value="">-- Select --</option>
+            <option value="Reattempt">Reattempt</option>
+            <option value="Retrieval">Retrieval</option>
         </select>
-        <label for="routeNumber">Route Number:</label>
-        <input type="text" id="routeNumber" name="routeNumber" required>
+
+        <label for="routeNumber">Route Number (2-3 digits only):</label>
+        <input type="text" id="routeNumber" name="routeNumber" pattern="\\d{2,3}" title="Please enter 2 or 3 digits only" required>
+
         <label for="trackingNumber">Tracking Number:</label>
         <input type="text" id="trackingNumber" name="trackingNumber" required>
+
         <label for="zipCode">Zip Code:</label>
         <input type="text" id="zipCode" name="zipCode" required>
+
         <label for="streetAddress">Street Address:</label>
         <input type="text" id="streetAddress" name="streetAddress" required>
-        <button type="button" onclick="sendEmail()">Send Email</button>
+
+        <button type="button" onclick="validateAndSendEmail()">Send Email</button>
     </form>
 
     <script>
-        function sendEmail() {
+        function validateAndSendEmail() {
             const form = document.getElementById("fedexForm");
             const formData = new FormData(form);
+
+            // Validate if all fields are complete
+            for (let [key, value] of formData.entries()) {
+                if (!value.trim()) {
+                    alert(`Please fill out the ${key.replace(/([A-Z])/g, ' $1').toLowerCase()} field.`);
+                    return;
+                }
+            }
+
+            // Route number validation
+            const routeNumber = formData.get("routeNumber");
+            if (!/^\d{2,3}$/.test(routeNumber)) {
+                alert("Route Number must be 2 or 3 digits only.");
+                return;
+            }
+
             const emailBody = `
-                Route: ${formData.get("route")}
-                Route Number: ${formData.get("routeNumber")}
+                Type: ${formData.get("type")}
+                Route Number: ${routeNumber}
                 Tracking Number: ${formData.get("trackingNumber")}
                 Zip Code: ${formData.get("zipCode")}
                 Street Address: ${formData.get("streetAddress")}
             `;
+            
+            // Redirect to mailto with the form data
             window.location.href = `mailto:dminouye@fedex.com?subject=FedEx Submission&body=${encodeURIComponent(emailBody)}`;
         }
     </script>
