@@ -7,29 +7,38 @@
     <style>
         body {
             font-family: Arial, sans-serif;
-            margin: 20px;
+            margin: 0;
             padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-color: #f4f4f4;
         }
         form {
-            margin-bottom: 30px;
+            margin: 0 auto;
             padding: 20px;
             border: 1px solid #ccc;
             border-radius: 10px;
             max-width: 500px;
-            background-color: #f9f9f9;
+            background-color: #ffffff;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
         label {
             display: block;
             margin-top: 10px;
             font-weight: bold;
         }
-        input, select {
+        input, select, textarea {
             width: 100%;
             padding: 8px;
             margin-top: 5px;
             border: 1px solid #ccc;
             border-radius: 5px;
             box-sizing: border-box;
+        }
+        textarea {
+            resize: vertical;
         }
         button {
             margin-top: 15px;
@@ -48,7 +57,8 @@
 </head>
 <body>
     <form id="fedexForm">
-        <h2>FedEx Email Form</h2>
+        <h2 style="text-align: center;">FedEx Email Form</h2>
+        
         <label for="type">Choose Reattempt or Retrieval:</label>
         <select id="type" name="type" required>
             <option value="">-- Select --</option>
@@ -56,17 +66,20 @@
             <option value="Retrieval">Retrieval</option>
         </select>
 
-        <label for="routeNumber">Route Number (2-3 digits only):</label>
+        <label for="routeNumber">Route Number (2 or 3 digits only):</label>
         <input type="text" id="routeNumber" name="routeNumber" pattern="\\d{2,3}" title="Please enter 2 or 3 digits only" required>
 
-        <label for="trackingNumber">Tracking Number:</label>
-        <input type="text" id="trackingNumber" name="trackingNumber" required>
+        <label for="trackingNumber">Tracking Number (12 digits only):</label>
+        <input type="text" id="trackingNumber" name="trackingNumber" pattern="\\d{12}" title="Please enter exactly 12 digits" required>
 
         <label for="zipCode">Zip Code:</label>
         <input type="text" id="zipCode" name="zipCode" required>
 
         <label for="streetAddress">Street Address:</label>
         <input type="text" id="streetAddress" name="streetAddress" required>
+
+        <label for="comments">Comments:</label>
+        <textarea id="comments" name="comments" rows="4" placeholder="Enter any additional details..."></textarea>
 
         <button type="button" onclick="validateAndSendEmail()">Send Email</button>
     </form>
@@ -91,12 +104,20 @@
                 return;
             }
 
+            // Tracking number validation
+            const trackingNumber = formData.get("trackingNumber");
+            if (!/^\d{12}$/.test(trackingNumber)) {
+                alert("Tracking Number must be exactly 12 digits.");
+                return;
+            }
+
             const emailBody = `
                 Type: ${formData.get("type")}
                 Route Number: ${routeNumber}
-                Tracking Number: ${formData.get("trackingNumber")}
+                Tracking Number: ${trackingNumber}
                 Zip Code: ${formData.get("zipCode")}
                 Street Address: ${formData.get("streetAddress")}
+                Comments: ${formData.get("comments")}
             `;
             
             // Redirect to mailto with the form data
